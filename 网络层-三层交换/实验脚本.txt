@@ -1,0 +1,145 @@
+===== S1 =====
+# 基本配置
+hostname S1
+no ip domain-lookup
+no cdp run
+line console 0
+exec-timeout 0 0
+exit
+
+vlan 10
+exit
+vlan 20
+exit
+
+int e0/0
+switchport trunk encapsulation dot1q
+switchport mode trunk
+switchport nonegotiate
+exit
+
+int e0/1
+switchport mode access
+switchport access vlan 10
+exit
+
+
+# SVI接口配置
+int vlan 10
+ip address 192.168.10.253 255.255.255.0
+no shutdown
+exit
+
+int vlan 20
+ip address 192.168.20.253 255.255.255.0
+no shutdown
+exit
+
+
+# 三层接口配置（典型方式）
+int e0/3
+no switchport
+ip address 10.0.1.1 255.255.255.252
+exit
+
+
+
+===== S2 =====
+# 基本配置
+hostname S2
+no ip domain-lookup
+no cdp run
+line console 0
+exec-timeout 0 0
+exit
+
+vlan 10
+exit
+vlan 20
+exit
+
+int e0/0
+switchport trunk encapsulation dot1q
+switchport mode trunk
+switchport nonegotiate
+exit
+
+int e0/1
+switchport mode access
+switchport access vlan 20
+exit
+
+
+# SVI接口配置
+int vlan 10
+ip address 192.168.10.254 255.255.255.0
+no shutdown
+exit
+
+int vlan 20
+ip address 192.168.20.254 255.255.255.0
+no shutdown
+exit
+
+
+# 三层接口配置（非典型方式）
+vlan 999
+exit
+
+int vlan 999
+ip address 10.0.2.1 255.255.255.252
+no shutdown
+exit
+
+int e0/3
+switchport mode access
+switchport access vlan 999
+exit
+
+
+
+===== R1 =====
+# 基本配置
+hostname R1
+no ip domain-lookup
+no cdp run
+line console 0
+exec-timeout 0 0
+exit
+
+int e0/3
+ip address 10.0.1.2 255.255.255.252
+no shutdown
+exit
+
+
+
+===== R2 =====
+# 基本配置
+hostname R2
+no ip domain-lookup
+no cdp run
+line console 0
+exec-timeout 0 0
+exit
+
+int e0/3
+ip address 10.0.2.2 255.255.255.252
+no shutdown
+exit
+
+
+
+===== PC1 =====
+# 基本配置
+set pcname PC1
+
+ip 192.168.10.1/24 192.168.10.253
+
+
+
+===== PC2 =====
+# 基本配置
+set pcname PC2
+
+ip 192.168.20.1/24 192.168.20.254
