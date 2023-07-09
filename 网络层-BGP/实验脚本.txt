@@ -1,0 +1,201 @@
+===== R1 =====
+# 基本配置
+hostname R1
+no ip domain-lookup
+no cdp run
+line console 0
+exec-timeout 0 0
+exit
+
+interface e0/0
+ip address 101.0.0.1 255.255.255.252
+no shutdown
+exit
+
+interface e0/1
+ip address 10.0.1.1 255.255.255.252
+no shutdown
+exit
+
+interface e0/2
+ip address 10.0.2.1 255.255.255.252
+no shutdown
+exit
+
+interface lo0
+ip address 1.1.1.1 255.255.255.255
+no shutdown
+exit
+
+# BGP配置
+router bgp 100
+neighbor 10.0.1.2 remote-as 100
+neighbor 101.0.0.2 remote-as 200
+network 1.1.1.1 mask 255.255.255.255
+exit
+
+
+
+===== R2 =====
+# 基本配置
+hostname R2
+no ip domain-lookup
+no cdp run
+line console 0
+exec-timeout 0 0
+exit
+
+interface e0/0
+ip address 102.0.0.1 255.255.255.252
+no shutdown
+exit
+
+interface e0/1
+ip address 10.0.1.2 255.255.255.252
+no shutdown
+exit
+
+interface e0/3
+ip address 10.0.3.1 255.255.255.252
+no shutdown
+exit
+
+interface lo0
+ip address 2.2.2.2 255.255.255.255
+no shutdown
+exit
+
+# BGP配置
+router bgp 100
+neighbor 10.0.1.1 remote-as 100
+neighbor 102.0.0.2 remote-as 200
+network 2.2.2.2 mask 255.255.255.255
+exit
+
+
+
+===== R3 =====
+# 基本配置
+hostname R3
+no ip domain-lookup
+no cdp run
+line console 0
+exec-timeout 0 0
+exit
+
+interface e0/2
+ip address 10.0.2.2 255.255.255.252
+no shutdown
+exit
+
+interface e0/3
+ip address 10.0.3.2 255.255.255.252
+no shutdown
+exit
+
+interface lo0
+ip address 3.3.3.3 255.255.255.255
+no shutdown
+exit
+
+
+
+===== R4 =====
+# 基本配置
+hostname R4
+no ip domain-lookup
+no cdp run
+line console 0
+exec-timeout 0 0
+exit
+
+interface e0/0
+ip address 101.0.0.2 255.255.255.252
+no shutdown
+exit
+
+interface e0/1
+ip address 10.0.1.1 255.255.255.252
+no shutdown
+exit
+
+interface e0/2
+ip address 10.0.2.1 255.255.255.252
+no shutdown
+exit
+
+interface lo0
+ip address 4.4.4.4 255.255.255.255
+no shutdown
+exit
+
+# BGP配置
+router bgp 200
+neighbor 10.0.1.2 remote-as 200
+neighbor 101.0.0.1 remote-as 100
+network 4.4.4.4 mask 255.255.255.255
+exit
+
+
+
+===== R5 =====
+# 基本配置
+hostname R5
+no ip domain-lookup
+no cdp run
+line console 0
+exec-timeout 0 0
+exit
+
+interface e0/0
+ip address 102.0.0.2 255.255.255.252
+no shutdown
+exit
+
+interface e0/1
+ip address 10.0.1.2 255.255.255.252
+no shutdown
+exit
+
+interface e0/3
+ip address 10.0.3.1 255.255.255.252
+no shutdown
+exit
+
+interface lo0
+ip address 5.5.5.5 255.255.255.255
+no shutdown
+exit
+
+# BGP配置
+router bgp 200
+neighbor 10.0.1.1 remote-as 200
+neighbor 102.0.0.1 remote-as 100
+network 5.5.5.5 mask 255.255.255.255
+exit
+
+
+
+===== R6 =====
+# 基本配置
+hostname R6
+no ip domain-lookup
+no cdp run
+line console 0
+exec-timeout 0 0
+exit
+
+interface e0/2
+ip address 10.0.2.2 255.255.255.252
+no shutdown
+exit
+
+interface e0/3
+ip address 10.0.3.2 255.255.255.252
+no shutdown
+exit
+
+interface lo0
+ip address 6.6.6.6 255.255.255.255
+no shutdown
+exit
