@@ -1,0 +1,91 @@
+===== S1 =====
+# 基本配置
+hostname S1
+no ip domain-lookup
+no cdp run
+
+vlan 10
+exit
+
+vlan 20
+exit
+
+vlan 100
+exit
+
+
+int e0/1
+switchport mode access
+switchport access vlan 10
+exit
+
+int e0/2
+switchport mode access
+switchport access vlan 20
+exit
+
+int e0/3
+switchport mode access
+switchport access vlan 100
+exit
+
+
+# 配置Trunk模式
+int e0/0
+switchport mode trunk
+switchport trunk native vlan 100
+switchport nonegotiate
+exit
+
+
+
+===== R1 =====
+# 基本配置
+hostname R1
+no ip domain-lookup
+no cdp run
+
+int e0/0
+no shutdown
+exit
+
+
+# 配置子接口以承载各VLAN的流量
+int e0/0.10
+encapsulation dot1Q 10
+ip address 192.168.10.254 255.255.255.0
+exit
+
+int e0/0.20
+encapsulation dot1Q 20
+ip address 192.168.20.254 255.255.255.0
+exit
+
+int e0/0.100
+encapsulation dot1Q 100 native
+ip add 192.168.100.254 255.255.255.0
+exit
+
+
+
+===== PC1 =====
+# 基本配置
+set pcname PC1
+
+ip 192.168.10.1/24 192.168.10.254
+
+
+
+===== PC2 =====
+# 基本配置
+set pcname PC2
+
+ip 192.168.20.1/24 192.168.20.254
+
+
+
+===== PC3 =====
+# 基本配置
+set pcname PC3
+
+ip 192.168.100.1/24 192.168.100.254

@@ -1,0 +1,36 @@
+===== R1 =====
+# 基本配置
+hostname R1
+no ip domain-lookup
+no cdp run
+line console 0
+exec-timeout 0 0
+exit
+
+int e0/1
+ipv6 enable
+ipv6 address FD00:10::1/64
+no shutdown
+exit
+
+int e0/2
+ipv6 enable
+ipv6 address FD00:20::1/64
+no shutdown
+exit
+
+
+
+===== PC1 =====
+# 基本配置
+set pcname PC1
+
+ip FD00:10::2/64
+
+
+
+===== PC2 =====
+# 基本配置
+set pcname PC2
+
+ip FD00:20::/64 eui64

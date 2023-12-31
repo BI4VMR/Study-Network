@@ -1,0 +1,86 @@
+===== R1 =====
+# 基本配置
+hostname R1
+no ip domain-lookup
+no cdp run
+line console 0
+exec-timeout 0 0
+exit
+
+
+# 接口配置
+int e0/0
+ip address 10.0.0.1 255.255.255.252
+no shutdown
+exit
+
+int e0/1
+ip address 10.0.1.1 255.255.255.252
+no shutdown
+exit
+
+int lo0
+ip address 1.1.1.1 255.255.255.255
+no shutdown
+exit
+
+
+# 静态路由配置
+ip route 2.2.2.2 255.255.255.255 10.0.0.2
+ip route 3.3.3.3 255.255.255.255 e0/1     
+
+
+
+===== R2 =====
+# 基本配置
+hostname R2
+no ip domain-lookup
+no cdp run
+line console 0
+exec-timeout 0 0
+exit
+
+
+# 接口配置
+int e0/0
+ip address 10.0.0.2 255.255.255.252
+no shutdown
+exit
+
+int e0/1
+ip address 10.0.2.1 255.255.255.252
+no shutdown
+exit
+
+int lo0
+ip address 2.2.2.2 255.255.255.255
+no shutdown
+exit
+
+
+
+===== R3 =====
+# 基本配置
+hostname R3
+no ip domain-lookup
+no cdp run
+line console 0
+exec-timeout 0 0
+exit
+
+
+# 接口配置
+int e0/1
+ip address 10.0.1.2 255.255.255.252
+no shutdown
+exit
+
+int e0/2
+ip address 10.0.2.2 255.255.255.252
+no shutdown
+exit
+
+int lo0
+ip address 3.3.3.3 255.255.255.255
+no shutdown
+exit
