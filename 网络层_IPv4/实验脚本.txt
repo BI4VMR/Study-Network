@@ -1,0 +1,34 @@
+===== R1 =====
+# 基本配置
+hostname R1
+no ip domain-lookup
+no cdp run
+line console 0
+exec-timeout 0 0
+exit
+
+int e0/1
+ip address 10.0.0.254 255.0.0.0
+no shutdown
+exit
+
+int e0/2
+ip address 192.168.1.254 255.255.255.0
+no shutdown
+exit
+
+
+
+===== PC1 =====
+# 基本配置
+set pcname PC1
+
+ip 10.0.0.1/8 10.0.0.254
+
+
+
+===== PC2 =====
+# 基本配置
+set pcname PC2
+
+ip 192.168.1.1/24 192.168.1.254
