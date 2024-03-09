@@ -1,0 +1,1188 @@
+==========S1==========
+##### 系统配置 #####
+
+hostname S1
+no ip domain-lookup
+no cdp run
+line console 0
+exec-timeout 0 0
+exit
+
+
+##### 基本配置 #####
+
+vlan 10
+name Customer
+exit
+vlan 20
+name Sales
+exit
+vlan 30
+name Development
+exit
+vlan 40
+name Financial
+exit
+vlan 50
+name Administrative
+exit
+vlan 60
+name Visitors
+exit
+vlan 100
+name DeviceManage
+exit
+
+int vlan 10
+ip add 192.168.10.252 255.255.255.0
+no shutdown
+exit
+int vlan 20
+ip add 192.168.20.252 255.255.255.0
+no shutdown
+exit
+int vlan 30
+ip add 192.168.30.252 255.255.255.0
+no shutdown
+exit
+int vlan 40
+ip add 192.168.40.252 255.255.255.0
+no shutdown
+exit
+int vlan 50
+ip add 192.168.50.252 255.255.255.0
+no shutdown
+exit
+int vlan 60
+ip add 192.168.60.252 255.255.255.0
+no shutdown
+exit
+int vlan 100
+ip add 192.168.100.252 255.255.255.0
+no shutdown
+exit
+
+int range e0/0-2
+switchport trunk encapsulation dot1q
+switchport mode trunk
+switchport nonegotiate
+no shutdown
+exit
+
+int e1/1
+no switch
+ip add 10.0.0.1 255.255.255.252
+no shut
+exit
+int e1/2
+no switch
+ip add 10.0.0.5 255.255.255.252
+no shutdown
+exit
+
+int loop0
+ip add 10.254.254.1 255.255.255.255
+exit
+
+
+##### 链路聚合 #####
+
+int range e2/1-2
+channel-protocol lacp
+channel-group 1 mode active
+no shutdown
+exit
+
+int port-channel 1
+switchport trunk encapsulation dot1q
+switchport mode trunk
+switchport nonegotiate
+no shutdown
+exit
+
+
+##### 生成树协议 #####
+
+spanning-tree mst configuration
+name MSTP
+revision 1
+instance 1 vlan 10,30,50,100
+instance 2 vlan 20,40,60
+exit
+
+spanning-tree mode mst
+spanning-tree mst 0 priority 0
+spanning-tree mst 1 priority 0
+spanning-tree mst 2 priority 4096
+
+
+##### 虚拟网关冗余协议 #####
+
+int vlan 10
+vrrp 10 ip 192.168.10.254
+vrrp 10 priority 150
+exit
+int vlan 20
+vrrp 20 ip 192.168.20.254
+exit
+int vlan 30
+vrrp 30 ip 192.168.30.254
+vrrp 30 priority 150
+exit
+int vlan 40
+vrrp 40 ip 192.168.40.254
+exit
+int vlan 50
+vrrp 50 ip 192.168.50.254
+vrrp 50 priority 150
+exit
+int vlan 60
+vrrp 60 ip 192.168.60.254
+exit
+int vlan 100
+vrrp 100 ip 192.168.100.254
+vrrp 100 priority 150
+exit
+
+track 1 interface e1/1 line-protocol
+exit
+track 2 interface e1/2 line-protocol
+exit
+
+int vlan 10
+vrrp 10 track 1 decrement 30
+vrrp 10 track 2 decrement 30
+exit
+int vlan 30
+vrrp 30 track 1 decrement 30
+vrrp 30 track 2 decrement 30
+exit
+int vlan 50
+vrrp 50 track 1 decrement 30
+vrrp 50 track 2 decrement 30
+exit
+int vlan 100
+vrrp 100 track 1 decrement 30
+vrrp 100 track 2 decrement 30
+exit
+int vlan 200
+vrrp 200 track 1 decrement 30
+vrrp 200 track 2 decrement 30
+exit
+
+
+##### 静态路由 #####
+
+ip route 10.254.254.11 255.255.255.255 192.168.100.11
+ip route 10.254.254.12 255.255.255.255 192.168.100.253
+ip route 192.168.201.0 255.255.255.0 192.168.100.10
+
+
+#####路由协议#####
+
+router ospf 1
+router-id 10.254.254.1
+network 10.254.254.1 0.0.0.0 area 0
+network 10.0.0.0 0.0.0.3 area 0
+network 10.0.0.4 0.0.0.3 area 0
+network 192.168.10.0 0.0.0.255 area 0
+network 192.168.20.0 0.0.0.255 area 0
+network 192.168.30.0 0.0.0.255 area 0
+network 192.168.40.0 0.0.0.255 area 0
+network 192.168.50.0 0.0.0.255 area 0
+network 192.168.60.0 0.0.0.255 area 0
+network 192.168.100.0 0.0.0.255 area 0
+exit
+
+router ospf 1
+passive-interface vlan 10
+passive-interface vlan 20
+passive-interface vlan 30
+passive-interface vlan 40
+passive-interface vlan 50
+passive-interface vlan 60
+exit
+
+int range e1/1-2
+ip ospf network point-to-point
+exit
+
+
+
+==========S2==========
+#####基本配置#####
+
+hostname S2
+
+#####接口配置#####
+
+vlan 10
+name Customer
+exit
+vlan 20
+name Sales
+exit
+vlan 30
+name Development
+exit
+vlan 40
+name Financial
+exit
+vlan 50
+name Administrative
+exit
+vlan 60
+name Visitors
+exit
+vlan 100
+name DeviceManage
+exit
+vlan 200
+name WLAN_AP
+exit
+
+int vlan 10
+ip add 192.168.10.253 255.255.255.0
+no shut
+exit
+int vlan 20
+ip add 192.168.20.253 255.255.255.0
+no shut
+exit
+int vlan 30
+ip add 192.168.30.253 255.255.255.0
+no shut
+exit
+int vlan 40
+ip add 192.168.40.253 255.255.255.0
+no shut
+exit
+int vlan 50
+ip add 192.168.50.253 255.255.255.0
+no shut
+exit
+int vlan 60
+ip add 192.168.60.253 255.255.255.0
+no shut
+exit
+int vlan 100
+ip add 192.168.100.253 255.255.255.0
+no shut
+exit
+int vlan 200
+ip add 192.168.200.253 255.255.255.0
+no shut
+exit
+
+int range e0/0-2
+switch trunk encapsulation dot1q
+switch mode trunk
+no shut
+exit
+int e1/1
+no switchport
+ip add 10.0.0.9 255.255.255.252
+no shut
+exit
+int e1/2
+no switchport
+ip add 10.0.0.13 255.255.255.252
+no shut
+exit
+int range e2/1-2
+channel-protocol lacp
+channel-group 1 mode passive
+no shut
+exit
+
+int port-channel 1
+switch trunk encapsulation dot1q
+switch mode trunk
+no shut
+exit
+
+int lo0
+ip add 10.254.254.2 255.255.255.255
+exit
+
+#####生成树协议#####
+
+spanning-tree mst configuration
+name JS_Co
+revision 1
+instance 1 vlan 10,30,50,100,200
+instance 2 vlan 20,40,60
+exit
+spanning-tree mst 0 priority 4096
+spanning-tree mst 1 priority 4096
+spanning-tree mst 2 priority 0
+spanning-tree mode mst
+
+#####虚拟网关冗余协议#####
+
+int vlan 10
+vrrp 10 ip 192.168.10.254
+exit
+int vlan 20
+vrrp 20 ip 192.168.20.254
+vrrp 20 pri 150
+exit
+int vlan 30
+vrrp 30 ip 192.168.30.254
+exit
+int vlan 40
+vrrp 40 ip 192.168.40.254
+vrrp 40 pri 150
+exit
+int vlan 50
+vrrp 50 ip 192.168.50.254
+exit
+int vlan 60
+vrrp 60 ip 192.168.60.254
+vrrp 60 pri 150
+exit
+int vlan 100
+vrrp 100 ip 192.168.100.254
+exit
+int vlan 200
+vrrp 200 ip 192.168.200.254
+exit
+
+#####静态路由#####
+
+ip route 10.254.254.11 255.255.255.255 192.168.100.252
+ip route 10.254.254.12 255.255.255.255 192.168.100.12
+ip route 192.168.201.0 255.255.255.0 192.168.100.10
+
+#####路由协议#####
+
+router ospf 1
+auto-cost reference-bandwidth 10
+router-id 10.254.254.2
+network 10.254.254.2 0.0.0.0 a 0
+network 10.0.0.8 0.0.0.3 a 0
+network 10.0.0.12 0.0.0.3 a 0
+network 192.168.10.0 0.0.0.255 a 0
+network 192.168.20.0 0.0.0.255 a 0
+network 192.168.30.0 0.0.0.255 a 0
+network 192.168.40.0 0.0.0.255 a 0
+network 192.168.50.0 0.0.0.255 a 0
+network 192.168.60.0 0.0.0.255 a 0
+network 192.168.100.0 0.0.0.255 a 0
+exit
+
+#####网络优化#####
+
+router ospf 1
+passive-interface vlan 10
+passive-interface vlan 20
+passive-interface vlan 30
+passive-interface vlan 40
+passive-interface vlan 50
+passive-interface vlan 60
+exit
+
+int range e1/1-2
+ip ospf network point-to-point
+exit
+
+track 1 interface e1/1 line-protocol
+exit
+track 2 interface e1/2 line-protocol
+exit
+
+int vlan 20
+vrrp 20 track 1 decrement 30
+vrrp 20 track 2 decrement 30
+exit
+int vlan 40
+vrrp 40 track 1 decrement 30
+vrrp 40 track 2 decrement 30
+exit
+int vlan 60
+vrrp 60 track 1 decrement 30
+vrrp 60 track 2 decrement 30
+exit
+
+#####DHCP#####
+
+service dhcp
+
+ip dhcp pool WLAN_AP
+network 192.168.200.0 255.255.255.0
+default-router 192.168.200.254
+option 138 ip 10.254.254.11 10.254.254.12
+exit
+ip dhcp excluded-address 192.168.200.1 192.168.200.100
+
+int vlan 10
+ip helper-address 10.254.254.102
+exit
+int vlan 20
+ip helper-address 10.254.254.102
+exit
+int vlan 30
+ip helper-address 10.254.254.102
+exit
+int vlan 40
+ip helper-address 10.254.254.102
+exit
+int vlan 50
+ip helper-address 10.254.254.102
+exit
+int vlan 60
+ip helper-address 10.254.254.102
+exit
+int vlan 100
+ip helper-address 10.254.254.102
+exit
+
+#####系统优化#####
+
+no cdp run
+no ip domain-lookup
+line console 0
+exec-timeout 0
+logging synchronous
+exit
+
+
+==========S3==========
+#####基本配置#####
+
+hostname S3
+
+no ip routing
+
+#####接口配置#####
+
+vlan 10
+name Customer
+exit
+vlan 20
+name Sales
+exit
+vlan 30
+name Development
+exit
+vlan 40
+name Financial
+exit
+vlan 50
+name Administrative
+exit
+vlan 60
+name Visitors
+exit
+vlan 100
+name DeviceManage
+exit
+vlan 200
+name WLAN_AP
+exit
+
+int vlan 100
+ip add 192.168.100.3 255.255.255.0
+no shut
+exit
+
+int range e0/1-3
+switch trunk encapsulation dot1q
+switch mode trunk
+no shut
+exit
+int range e2/1-2
+channel-protocol lacp
+channel-group 1 mode active
+no shut
+exit
+
+int port-channel 1
+switch trunk encapsulation dot1q
+switch mode trunk
+no shut
+exit
+
+#####生成树协议#####
+
+spanning-tree mst configuration
+name JS_Co
+revision 1
+instance 1 vlan 10,30,50,100,200
+instance 2 vlan 20,40,60
+exit
+spanning-tree mst 0 priority 8192
+spanning-tree mst 1 priority 8192
+spanning-tree mst 2 priority 12288
+spanning-tree mode mst
+
+#####系统优化#####
+
+no cdp run
+no ip domain-lookup
+line console 0
+exec-timeout 0
+logging synchronous
+exit
+
+
+==========S4==========
+#####基本配置#####
+
+hostname S4
+
+no ip routing
+
+#####接口配置#####
+
+vlan 10
+name Customer
+exit
+vlan 20
+name Sales
+exit
+vlan 30
+name Development
+exit
+vlan 40
+name Financial
+exit
+vlan 50
+name Administrative
+exit
+vlan 60
+name Visitors
+exit
+vlan 100
+name DeviceManage
+exit
+vlan 200
+name WLAN_AP
+exit
+
+int vlan 100
+ip add 192.168.100.4 255.255.255.0
+no shut
+exit
+
+int range e0/1-3
+switch trunk encapsulation dot1q
+switch mode trunk
+no shut
+exit
+int range e2/1-2
+channel-protocol lacp
+channel-group 1 mode passive
+no shut
+exit
+
+int port-channel 1
+switch trunk encapsulation dot1q
+switch mode trunk
+no shut
+exit
+
+#####生成树协议#####
+
+spanning-tree mst configuration
+name JS_Co
+revision 1
+instance 1 vlan 10,30,50,100,200
+instance 2 vlan 20,40,60
+exit
+spanning-tree mst 0 priority 12288
+spanning-tree mst 1 priority 12288
+spanning-tree mst 2 priority 8192
+spanning-tree mode mst
+
+#####系统优化#####
+
+no cdp run
+no ip domain-lookup
+line console 0
+exec-timeout 0
+logging synchronous
+exit
+
+
+==========S5==========
+#####基本配置#####
+
+hostname S5
+
+no ip routing
+
+#####接口配置#####
+
+vlan 10
+name Customer
+exit
+vlan 20
+name Sales
+exit
+vlan 30
+name Development
+exit
+vlan 40
+name Financial
+exit
+vlan 50
+name Administrative
+exit
+vlan 60
+name Visitors
+exit
+vlan 100
+name DeviceManage
+exit
+vlan 200
+name WLAN_AP
+exit
+
+int vlan 100
+ip add 192.168.100.5 255.255.255.0
+no shut
+exit
+
+int range e0/1-2
+switch trunk encapsulation dot1q
+switch mode trunk
+no shut
+exit
+int e1/0
+switch mode access
+switch access vlan 10
+no shut
+exit
+int e1/1
+switch mode access
+switch access vlan 20
+no shut
+exit
+
+#####生成树协议#####
+
+spanning-tree mst configuration
+name JS_Co
+revision 1
+instance 1 vlan 10,30,50,100,200
+instance 2 vlan 20,40,60
+exit
+spanning-tree mode mst
+
+#####系统优化#####
+
+no cdp run
+no ip domain-lookup
+line console 0
+exec-timeout 0
+logging synchronous
+exit
+
+
+==========R1==========
+#####基本配置#####
+
+hostname R1
+
+#####接口配置#####
+
+int e0/0
+ip add 10.0.1.1 255.255.255.252
+no shut
+exit
+int e0/1
+ip add 10.0.0.2 255.255.255.252
+no shut
+exit
+int e0/2
+ip add 10.0.0.14 255.255.255.252
+no shut
+exit
+int e0/3
+ip add 10.0.0.17 255.255.255.252
+no shut
+exit
+int e1/0
+ip add 10.0.2.1 255.255.255.252
+no shut
+exit
+
+int lo0
+ip add 10.254.254.101 255.255.255.255
+no shut
+exit
+
+#####静态路由#####
+
+ip route 0.0.0.0 0.0.0.0 10.0.1.2
+
+#####路由协议#####
+
+router ospf 1
+auto-cost reference-bandwidth 10
+router-id 10.254.254.101
+network 10.254.254.101 0.0.0.0 a 0
+network 10.0.0.0 0.0.0.3 a 0
+network 10.0.0.12 0.0.0.3 a 0
+network 10.0.0.16 0.0.0.3 a 0
+network 10.0.2.0 0.0.0.3 a 1
+default-information originate metric-type 1
+exit
+
+#####路由协议优化#####
+
+int e0/1
+ip ospf network point-to-point
+exit
+int e0/2
+ip ospf network point-to-point
+exit
+int e0/3
+ip ospf network point-to-point
+exit
+int e1/0
+ip ospf network point-to-point
+exit
+
+#####DHCP#####
+
+service dhcp
+
+ip dhcp pool Customer
+network 192.168.10.0 255.255.255.0
+default-router 192.168.10.254
+dns-server 114.114.114.114 8.8.8.8
+exit
+ip dhcp excluded-address 192.168.10.101 192.168.10.254
+
+ip dhcp pool Sales
+network 192.168.20.0 255.255.255.0
+default-router 192.168.20.254
+dns-server 114.114.114.114 8.8.8.8
+exit
+ip dhcp excluded-address 192.168.20.101 192.168.20.254
+
+ip dhcp pool Development
+network 192.168.30.0 255.255.255.0
+default-router 192.168.30.254
+dns-server 114.114.114.114 8.8.8.8
+exit
+ip dhcp excluded-address 192.168.30.101 192.168.30.254
+
+ip dhcp pool Financial
+network 192.168.40.0 255.255.255.0
+default-router 192.168.40.254
+dns-server 114.114.114.114 8.8.8.8
+exit
+ip dhcp excluded-address 192.168.40.101 192.168.40.254
+
+ip dhcp pool Administrative
+network 192.168.50.0 255.255.255.0
+default-router 192.168.50.254
+dns-server 114.114.114.114 8.8.8.8
+exit
+ip dhcp excluded-address 192.168.50.101 192.168.50.254
+
+ip dhcp pool Visitors
+network 192.168.60.0 255.255.255.0
+default-router 192.168.60.254
+dns-server 114.114.114.114 8.8.8.8
+exit
+ip dhcp excluded-address 192.168.60.101 192.168.60.254
+
+ip dhcp pool DeviceManage
+network 192.168.100.0 255.255.255.0
+default-router 192.168.100.254
+dns-server 114.114.114.114 8.8.8.8
+exit
+ip dhcp excluded-address 192.168.100.101 192.168.100.254
+
+#####系统优化#####
+
+no cdp run
+no ip domain-lookup
+line console 0
+exec-timeout 0
+logging synchronous
+exit
+
+int range e0/0-3,e1/0-3
+duplex full
+exit
+
+
+==========R2==========
+#####基本配置#####
+
+hostname R2
+
+#####接口配置#####
+
+int e0/0
+ip add 10.0.1.5 255.255.255.252
+no shut
+exit
+int e0/1
+ip add 10.0.0.10 255.255.255.252
+no shut
+exit
+int e0/2
+ip add 10.0.0.6 255.255.255.252
+no shut
+exit
+int e0/3
+ip add 10.0.0.18 255.255.255.252
+no shut
+exit
+int e1/0
+ip add 10.0.2.5 255.255.255.252
+no shut
+exit
+
+int lo0
+ip add 10.254.254.102 255.255.255.255
+no shut
+exit
+
+#####静态路由#####
+
+ip route 0.0.0.0 0.0.0.0 10.0.1.6
+
+#####路由协议#####
+
+router ospf 1
+auto-cost reference-bandwidth 10
+router-id 10.254.254.102
+network 10.254.254.102 0.0.0.0 a 0
+network 10.0.0.4 0.0.0.3 a 0
+network 10.0.0.8 0.0.0.3 a 0
+network 10.0.0.16 0.0.0.3 a 0
+network 10.0.2.4 0.0.0.3 a 1
+default-information originate metric-type 1
+exit
+
+#####路由协议优化#####
+
+int e0/1
+ip ospf network point-to-point
+exit
+int e0/2
+ip ospf network point-to-point
+exit
+int e0/3
+ip ospf network point-to-point
+exit
+int e1/0
+ip ospf network point-to-point
+exit
+
+#####DHCP#####
+
+service dhcp
+
+ip dhcp pool Customer
+network 192.168.10.0 255.255.255.0
+default-router 192.168.10.254
+dns-server 114.114.114.114 8.8.8.8
+exit
+ip dhcp excluded-address 192.168.10.1 192.168.10.100
+
+ip dhcp pool Sales
+network 192.168.20.0 255.255.255.0
+default-router 192.168.20.254
+dns-server 114.114.114.114 8.8.8.8
+exit
+ip dhcp excluded-address 192.168.20.1 192.168.20.100
+
+ip dhcp pool Development
+network 192.168.30.0 255.255.255.0
+default-router 192.168.30.254
+dns-server 114.114.114.114 8.8.8.8
+exit
+ip dhcp excluded-address 192.168.30.1 192.168.30.100
+
+ip dhcp pool Financial
+network 192.168.40.0 255.255.255.0
+default-router 192.168.40.254
+dns-server 114.114.114.114 8.8.8.8
+exit
+ip dhcp excluded-address 192.168.40.1 192.168.40.100
+
+ip dhcp pool Administrative
+network 192.168.50.0 255.255.255.0
+default-router 192.168.50.254
+dns-server 114.114.114.114 8.8.8.8
+exit
+ip dhcp excluded-address 192.168.50.1 192.168.50.100
+
+ip dhcp pool Visitors
+network 192.168.60.0 255.255.255.0
+default-router 192.168.60.254
+dns-server 114.114.114.114 8.8.8.8
+exit
+ip dhcp excluded-address 192.168.60.1 192.168.60.100
+
+ip dhcp pool DeviceManage
+network 192.168.100.0 255.255.255.0
+default-router 192.168.100.254
+dns-server 114.114.114.114 8.8.8.8
+exit
+ip dhcp excluded-address 192.168.100.1 192.168.100.100
+
+#####系统优化#####
+
+no cdp run
+no ip domain-lookup
+line console 0
+exec-timeout 0
+logging synchronous
+exit
+
+int range e0/0-3,e1/0-3
+duplex full
+exit
+
+
+==========ISP==========
+#####基本配置#####
+
+hostname ISP
+
+#####接口配置#####
+
+int e0/0
+ip add 1.0.0.2 255.255.255.252
+no shut
+exit
+int e0/1
+ip add dhcp
+no shut
+exit
+int e0/2
+ip add 100.0.0.2 255.255.255.252
+no shut
+exit
+int e0/3
+ip add 200.0.0.2 255.255.255.252
+no shut
+exit
+
+int lo0
+ip add 114.114.114.114 255.255.255.255
+exit
+
+#####静态路由#####
+
+ip route 0.0.0.0 0.0.0.0 100.0.0.1
+ip route 0.0.0.0 0.0.0.0 200.0.0.1 10
+
+#####系统优化#####
+
+no cdp run
+no ip domain-lookup
+line console 0
+exec-timeout 0
+logging synchronous
+exit
+
+int range e0/0-3,e1/0-3
+duplex full
+exit
+
+==========IRF(代替)==========
+#####基础配置#####
+
+hostname IRF
+
+#####接口配置#####
+
+vlan 16
+name UniversalServer
+exit
+vlan 17
+name Server
+exit
+vlan 30
+name Manage
+exit
+
+int vlan 16
+ip add 172.16.0.254 255.255.0.0
+no shut
+exit
+int vlan 17
+ip add 172.17.0.254 255.255.0.0
+no shut
+exit
+int vlan 30
+ip add 172.30.0.254 255.255.0.0
+no shut
+exit
+
+int e0/1
+no switchport
+ip add 10.0.2.2 255.255.255.252
+no shut
+exit
+int e0/2
+no switchport
+ip add 10.0.2.6 255.255.255.252
+no shut
+exit
+
+int lo0
+ip add 10.254.254.10 255.255.255.255
+exit
+
+#####路由协议#####
+
+router ospf 1
+auto-cost reference-bandwidth 10
+router-id 10.254.254.10
+network 10.254.254.10 0.0.0.0 area 1
+network 10.0.2.0 0.0.0.3 area 1
+network 10.0.2.4 0.0.0.3 area 1
+network 172.16.0.0 0.0.255.255 area 1
+network 172.17.0.0 0.0.255.255 area 1
+network 172.30.0.0 0.0.255.255 area 1
+exit
+
+#####路由协议优化#####
+
+router ospf 1
+passive-interface vlan 16
+passive-interface vlan 17
+exit
+
+int range e0/1-2
+ip ospf network point-to-point
+exit
+
+#####LACP#####
+
+int range e3/1-2
+channel-protocol lacp
+channel-group 1 mode active
+exit
+
+int port-channel 1
+switch trunk encapsulation dot1q
+switch mode trunk
+exit
+
+#####系统优化#####
+
+no cdp run
+no ip domain-lookup
+line console 0
+exec-timeout 0
+logging synchronous
+exit
+
+==========S8(替代)==========
+#####基础配置#####
+
+hostname S8
+
+no ip routing
+
+#####接口配置#####
+
+vlan 16
+name UniversalServer
+exit
+vlan 17
+name Server
+exit
+vlan 30
+name Manage
+exit
+
+int vlan 30
+ip add 172.30.0.1 255.255.0.0
+no shut
+exit
+
+int e0/1
+swi mode access
+swi acc vlan 16
+no shut
+exit
+int e0/2
+swi mode access
+swi acc vlan 17
+no shut
+exit
+
+#####LACP#####
+
+int range e3/1-2
+channel-protocol lacp
+channel-group 1 mode active
+exit
+
+int port-channel 1
+switch trunk encapsulation dot1q
+switch mode trunk
+exit
+
+#####系统优化#####
+
+no cdp run
+no ip domain-lookup
+line console 0
+exec-timeout 0
+logging synchronous
+exit
+
+
+
+==========G1(替代)==========
+#####基础配置#####
+
+hostname G1
+
+#####接口配置#####
+
+int e0/0
+ip add 10.0.1.2 255.255.255.252
+no shut
+exit
+int e0/1
+ip add 10.0.1.6 255.255.255.252
+no shut
+exit
+int e1/1
+ip add 100.0.0.1 255.255.255.252
+no shut
+exit
+int e1/2
+ip add 200.0.0.1 255.255.255.252
+no shut
+exit
+
+#####静态路由#####
+
+ip route 0.0.0.0 0.0.0.0 100.0.0.2
+ip route 0.0.0.0 0.0.0.0 200.0.0.2
+
+ip route 192.168.0.0 255.255.0.0 10.0.1.1
+ip route 192.168.0.0 255.255.0.0 10.0.1.5
+ip route 172.16.0.0 255.255.0.0 10.0.1.1
+ip route 172.17.0.0 255.255.0.0 10.0.1.1
+ip route 172.30.0.0 255.255.0.0 10.0.1.1
+ip route 172.16.0.0 255.255.0.0 10.0.1.5
+ip route 172.17.0.0 255.255.0.0 10.0.1.5
+ip route 172.30.0.0 255.255.0.0 10.0.1.5
+
+#####系统优化#####
+
+no cdp run
+no ip domain-lookup
+line console 0
+exec-timeout 0
+logging synchronous
+exit
+
+

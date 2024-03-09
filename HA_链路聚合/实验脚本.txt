@@ -1,0 +1,86 @@
+===== S1 =====
+
+##### 系统配置 #####
+
+hostname S1
+
+no ip domain-lookup
+no cdp run
+
+line console 0
+logging synchronous
+exec-timeout 0 0
+exit
+
+no spanning-tree vlan 1
+
+
+##### 链路聚合 #####
+
+interface range e0/1-2
+channel-protocol lacp
+channel-group 1 mode active
+exit
+
+interface port-channel 1
+switchport trunk encapsulation dot1q
+switchport mode trunk
+switchport nonegotiate
+exit
+
+
+
+===== S2 =====
+
+##### 系统配置 #####
+
+hostname S2
+
+no ip domain-lookup
+no cdp run
+
+line console 0
+exec-timeout 0 0
+exit
+
+no spanning-tree vlan 1
+
+
+##### 链路聚合 #####
+
+interface range e0/1-2
+channel-protocol lacp
+channel-group 1 mode passive
+exit
+
+interface port-channel 1
+switchport trunk encapsulation dot1q
+switchport mode trunk
+switchport nonegotiate
+exit
+
+
+
+===== PC1 =====
+
+##### 系统配置 #####
+
+set pcname PC1
+
+
+##### 基本配置 #####
+
+ip 192.168.1.1/24
+
+
+
+===== PC2 =====
+
+##### 系统配置 #####
+
+set pcname PC2
+
+
+##### 基本配置 #####
+
+ip 192.168.1.2/24
