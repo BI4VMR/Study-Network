@@ -1,6 +1,6 @@
 ===== S1 =====
 
-##### 系统配置 #####
+!!!!! 系统配置 !!!!!
 
 hostname S1
 
@@ -15,7 +15,7 @@ exit
 no spanning-tree vlan 1
 
 
-##### 链路聚合 #####
+!!!!! 链路聚合 !!!!!
 
 interface range e0/1-2
 channel-protocol lacp
@@ -32,7 +32,7 @@ exit
 
 ===== S2 =====
 
-##### 系统配置 #####
+!!!!! 系统配置 !!!!!
 
 hostname S2
 
@@ -46,7 +46,7 @@ exit
 no spanning-tree vlan 1
 
 
-##### 链路聚合 #####
+!!!!! 链路聚合 !!!!!
 
 interface range e0/1-2
 channel-protocol lacp
