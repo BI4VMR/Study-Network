@@ -1,0 +1,316 @@
+===== S1 =====
+
+!!!!! 系统配置 !!!!!
+
+hostname S1
+
+line console 0
+exec-timeout 0 0
+exit
+
+no cdp run
+no ip domain-lookup
+
+
+!!!!! 基本配置 !!!!!
+
+vlan 10
+exit
+vlan 20
+exit
+
+interface vlan 10
+ip address 192.168.10.252 255.255.255.0
+no shutdown
+exit
+interface vlan 20
+ip address 192.168.20.252 255.255.255.0
+no shutdown
+exit
+
+interface e0/0
+no switchport
+ip address 10.0.1.1 255.255.255.252
+no shutdown
+exit
+interface range e0/1-2
+switchport trunk encapsulation dot1q
+switchport mode trunk
+switchport nonegotiate
+no shutdown
+exit
+
+interface loop0
+ip address 10.0.0.101 255.255.255.255
+no shutdown
+exit
+
+
+!!!!! 路由协议 !!!!!
+
+router ospf 1
+router-id 10.0.0.101
+network 10.0.0.101 0.0.0.0 area 0
+network 10.0.1.0 0.0.0.3 area 0
+network 192.168.10.0 0.0.0.255 area 0
+network 192.168.20.0 0.0.0.255 area 0
+exit
+
+router ospf 1
+passive-interface vlan 10
+passive-interface vlan 20
+exit
+
+interface e0/0
+ip ospf network point-to-point
+exit
+
+
+!!!!! 虚拟网关冗余协议 !!!!!
+
+interface vlan 10
+vrrp 10 ip 192.168.10.254
+vrrp 10 priority 150
+exit
+interface vlan 20
+vrrp 20 ip 192.168.20.254
+exit
+
+
+
+===== S2 =====
+
+!!!!! 系统配置 !!!!!
+
+hostname S2
+
+line console 0
+exec-timeout 0 0
+exit
+
+no cdp run
+no ip domain-lookup
+
+
+!!!!! 基本配置 !!!!!
+
+vlan 10
+exit
+vlan 20
+exit
+
+interface vlan 10
+ip address 192.168.10.253 255.255.255.0
+no shutdown
+exit
+interface vlan 20
+ip address 192.168.20.253 255.255.255.0
+no shutdown
+exit
+
+interface e0/0
+no switchport
+ip address 10.0.2.1 255.255.255.252
+no shutdown
+exit
+interface range e0/1-2
+switchport trunk encapsulation dot1q
+switchport mode trunk
+switchport nonegotiate
+no shutdown
+exit
+
+interface loop0
+ip address 10.0.0.102 255.255.255.255
+no shutdown
+exit
+
+
+!!!!! 路由协议 !!!!!
+
+router ospf 1
+router-id 10.0.0.102
+network 10.0.0.102 0.0.0.0 area 0
+network 10.0.1.0 0.0.0.3 area 0
+network 192.168.10.0 0.0.0.255 area 0
+network 192.168.20.0 0.0.0.255 area 0
+exit
+
+router ospf 1
+passive-interface vlan 10
+passive-interface vlan 20
+exit
+
+interface e0/0
+ip ospf network point-to-point
+exit
+
+
+!!!!! 虚拟网关冗余协议 !!!!!
+
+interface vlan 10
+vrrp 10 ip 192.168.10.254
+exit
+interface vlan 20
+vrrp 20 ip 192.168.20.254
+vrrp 20 priority 150
+exit
+
+
+
+===== S3 =====
+
+!!!!! 系统配置 !!!!!
+
+hostname S3
+
+line console 0
+exec-timeout 0 0
+exit
+
+no cdp run
+no ip domain-lookup
+no ip routing
+
+
+!!!!! 基本配置 !!!!!
+
+vlan 10
+exit
+vlan 20
+exit
+
+interface range e0/1-2
+switchport trunk encapsulation dot1q
+switchport mode trunk
+switchport nonegotiate
+no shutdown
+exit
+interface e1/1
+switchport mode access
+switchport access vlan 10
+no shutdown
+exit
+interface e1/2
+switchport mode access
+switchport access vlan 20
+no shutdown
+exit
+
+
+
+===== R1 =====
+
+!!!!! 系统配置 !!!!!
+
+hostname R1
+
+line console 0
+exec-timeout 0 0
+exit
+
+no cdp run
+no ip domain-lookup
+
+
+!!!!! 基本配置 !!!!!
+
+interface e0/0
+ip address 10.0.1.2 255.255.255.252
+no shutdown
+exit
+interface e0/1
+ip address 10.0.3.1 255.255.255.252
+no shutdown
+exit
+
+interface loop0
+ip address 10.0.0.201 255.255.255.255
+no shutdown
+exit
+
+
+!!!!! 路由协议 !!!!!
+
+router ospf 1
+router-id 10.0.0.201
+network 10.0.0.201 0.0.0.0 area 0
+network 10.0.1.0 0.0.0.3 area 0
+network 10.0.3.0 0.0.0.3 area 0
+exit
+
+interface range e0/0-1
+ip ospf network point-to-point
+exit
+
+
+
+===== R2 =====
+
+!!!!! 系统配置 !!!!!
+
+hostname R2
+
+line console 0
+exec-timeout 0 0
+exit
+
+no cdp run
+no ip domain-lookup
+
+
+!!!!! 基本配置 !!!!!
+
+interface e0/0
+ip address 10.0.2.2 255.255.255.252
+no shutdown
+exit
+interface e0/1
+ip address 10.0.3.2 255.255.255.252
+no shutdown
+exit
+
+interface loop0
+ip address 10.0.0.202 255.255.255.255
+no shutdown
+exit
+
+
+!!!!! 路由协议 !!!!!
+
+router ospf 1
+router-id 10.0.0.202
+network 10.0.0.202 0.0.0.0 area 0
+network 10.0.2.0 0.0.0.3 area 0
+network 10.0.3.0 0.0.0.3 area 0
+exit
+
+interface range e0/0-1
+ip ospf network point-to-point
+exit
+
+
+
+===== PC1 =====
+
+##### 系统配置 #####
+
+set pcname PC1
+
+
+##### 基本配置 #####
+
+ip 192.168.10.1/24 192.168.10.254
+
+
+
+===== PC2 =====
+
+##### 系统配置 #####
+
+set pcname PC2
+
+
+##### 基本配置 #####
+
+ip 192.168.20.1/24 192.168.20.254

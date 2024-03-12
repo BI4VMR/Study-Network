@@ -310,7 +310,7 @@ no shutdown
 exit
 
 
-#####生成树协议#####
+!!!!! 生成树协议 !!!!!
 
 spanning-tree mst configuration
 name MSTP
@@ -325,7 +325,7 @@ spanning-tree mst 1 priority 4096
 spanning-tree mst 2 priority 0
 
 
-#####虚拟网关冗余协议#####
+!!!!! 虚拟网关冗余协议 !!!!!
 
 interface vlan 10
 vrrp 10 ip 192.168.10.254
