@@ -1,0 +1,179 @@
+===== S1 =====
+
+!!!!! 系统配置 !!!!!
+
+hostname S1
+
+no ip domain-lookup
+no cdp run
+
+line console 0
+logging synchronous
+exec-timeout 0 0
+exit
+
+no spanning-tree vlan 1
+
+
+!!!!! 基本配置 !!!!!
+
+vlan 10
+exit
+vlan 20
+exit
+
+no spanning-tree vlan 10,20
+
+interface range e0/1-2
+switchport mode access
+switchport access vlan 10
+no shutdown
+exit
+
+interface range e0/3
+switchport mode access
+switchport access vlan 20
+no shutdown
+exit
+
+interface vlan 10
+ip address 192.168.1.254 255.255.255.0
+no shutdown
+exit
+
+interface vlan 20
+ip address 192.168.2.254 255.255.255.0
+no shutdown
+exit
+
+interface e0/0
+no switchport
+ip address 10.0.0.1 255.255.255.252
+no shutdown
+exit
+
+
+!!!!! DHCP !!!!!
+
+! 全局开启DHCP服务
+service dhcp
+
+! VLAN 10的DHCP服务配置
+ip dhcp pool Pool_VLAN10
+network 192.168.1.0 255.255.255.0
+default-router 192.168.1.254
+dns-server 223.5.5.5 180.76.76.76
+exit
+
+
+!!!!! DHCP静态绑定 !!!!!
+
+! PC2的静态地址绑定配置
+ip dhcp pool Pool_Static_PC2
+host 192.168.1.222 255.255.255.0
+client-identifier 0100.5079.6668.03
+exit
+
+
+!!!!! DHCP中继 !!!!!
+
+! 配置DHCP中继目标地址
+int vlan 20
+ip helper-address 10.0.0.2
+exit
+
+
+!!!!! DHCP Snooping !!!!!
+
+! 全局开启DHCP Snooping
+ip dhcp snooping
+
+! 为VLAN 10启用DHCP Snooping
+ip dhcp snooping vlan 10
+
+! 配置信任端口
+interface vlan 10
+ip dhcp snooping trust
+ip dhcp snooping limit rate 128
+exit
+
+
+
+===== R1 =====
+
+!!!!! 系统配置 !!!!!
+
+hostname R1
+
+no ip domain-lookup
+no cdp run
+
+line console 0
+logging synchronous
+exec-timeout 0 0
+exit
+
+
+!!!!! 基本配置 !!!!!
+
+interface e0/0
+ip address 10.0.0.2 255.255.255.252
+no shutdown
+exit
+
+
+!!!!! 静态路由 !!!!!
+
+ip route 192.168.0.0 255.255.0.0 10.0.0.1
+
+
+!!!!! DHCP !!!!!
+
+! 全局开启DHCP服务
+service dhcp
+
+! VLAN 10的DHCP服务配置
+ip dhcp pool Pool_VLAN20
+network 192.168.2.0 255.255.255.0
+default-router 192.168.2.254
+dns-server 223.5.5.5 180.76.76.76
+exit
+
+
+
+===== PC1 =====
+
+##### 系统配置 #####
+
+set pcname PC1
+
+
+##### 基本配置 #####
+
+ip dhcp
+
+
+
+===== PC2 =====
+
+##### 系统配置 #####
+
+set pcname PC2
+
+
+##### 基本配置 #####
+
+ip dhcp
+
+
+
+===== PC3 =====
+
+##### 系统配置 #####
+
+set pcname PC3
+
+
+##### 基本配置 #####
+
+ip dhcp
