@@ -38,6 +38,11 @@ switchport access vlan 20
 no shutdown
 exit
 
+interface e0/0
+ipv6 address FD00::1/64
+no shutdown
+exit
+
 interface vlan 10
 ipv6 address FD10::1/64
 no shutdown
@@ -67,13 +72,10 @@ dns-server 2400:3200::1
 dns-server 2001:4860:4860::8888
 exit
 
-
-!!!!! DHCP静态绑定 !!!!!
-
-! PC2的静态地址绑定配置
-ip dhcp pool Pool_Static_PC2
-host 192.168.1.222 255.255.255.0
-client-identifier 0100.5079.6668.03
+interface vlan 10
+ipv6 nd managed-config-flag
+ipv6 nd other-config-flag
+ipv6 dhcp server Pool_VLAN10
 exit
 
 
@@ -81,22 +83,9 @@ exit
 
 ! 配置DHCP中继目标地址
 int vlan 20
-ip helper-address 10.0.0.2
-exit
-
-
-!!!!! DHCP Snooping !!!!!
-
-! 全局开启DHCP Snooping
-ip dhcp snooping
-
-! 为VLAN 10启用DHCP Snooping
-ip dhcp snooping vlan 10
-
-! 配置信任端口
-interface vlan 10
-ip dhcp snooping trust
-ip dhcp snooping limit rate 128
+ipv6 nd managed-config-flag
+ipv6 nd other-config-flag
+ipv6 dhcp relay destination FD00::2
 exit
 
 
@@ -115,18 +104,21 @@ logging synchronous
 exec-timeout 0 0
 exit
 
+ipv6 unicast-routing
+
 
 !!!!! 基本配置 !!!!!
 
 interface e0/0
-ip address 10.0.0.2 255.255.255.252
+ipv6 address FD00::2/64
 no shutdown
 exit
 
 
 !!!!! 静态路由 !!!!!
 
-ip route 192.168.0.0 255.255.0.0 10.0.0.1
+ipv6 route FD10::/64 FD00::2
+ipv6 route FD20::/64 FD00::2
 
 
 !!!!! DHCP !!!!!
@@ -135,47 +127,89 @@ ip route 192.168.0.0 255.255.0.0 10.0.0.1
 service dhcp
 
 ! VLAN 10的DHCP服务配置
-ip dhcp pool Pool_VLAN20
-network 192.168.2.0 255.255.255.0
-default-router 192.168.2.254
-dns-server 223.5.5.5 180.76.76.76
+ipv6 dhcp pool Pool_S1_VLAN20
+address prefix FD20::/64
+dns-server 2400:3200::1
+dns-server 2001:4860:4860::8888
+exit
+
+interface e0/0
+ipv6 nd managed-config-flag
+ipv6 nd other-config-flag
+ipv6 dhcp server Pool_S1_VLAN20
 exit
 
 
 
 ===== PC1 =====
 
-##### 系统配置 #####
+!!!!! 系统配置 !!!!!
 
-set pcname PC1
+hostname PC1
+
+no ip domain-lookup
+no cdp run
+
+line console 0
+logging synchronous
+exec-timeout 0 0
+exit
 
 
-##### 基本配置 #####
+!!!!! 基本配置 !!!!!
 
-ip dhcp
+interface e0/0
+ipv6 enable
+ipv6 address dhcp
+no shutdown
+exit
 
 
 
 ===== PC2 =====
 
-##### 系统配置 #####
+!!!!! 系统配置 !!!!!
 
-set pcname PC2
+hostname PC2
+
+no ip domain-lookup
+no cdp run
+
+line console 0
+logging synchronous
+exec-timeout 0 0
+exit
 
 
-##### 基本配置 #####
+!!!!! 基本配置 !!!!!
 
-ip dhcp
+interface e0/0
+ipv6 enable
+ipv6 address dhcp rapid-commit
+no shutdown
+exit
 
 
 
 ===== PC3 =====
 
-##### 系统配置 #####
+!!!!! 系统配置 !!!!!
 
-set pcname PC3
+hostname PC3
+
+no ip domain-lookup
+no cdp run
+
+line console 0
+logging synchronous
+exec-timeout 0 0
+exit
 
 
-##### 基本配置 #####
+!!!!! 基本配置 !!!!!
 
-ip dhcp
+interface e0/0
+ipv6 enable
+ipv6 address dhcp
+no shutdown
+exit
